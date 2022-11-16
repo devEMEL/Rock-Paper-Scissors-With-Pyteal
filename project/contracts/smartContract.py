@@ -1,4 +1,7 @@
 from pyteal import *
+from pyteal.types import TealType
+from pyteal.ast.bytes import Bytes
+from pyteal.ast.expr import Expr
 
 def approval_program():
 
@@ -12,9 +15,7 @@ def approval_program():
 	op_accept = Bytes("accept")
 	op_reveal = Bytes("reveal")
 
-	init = Seq([
-		Approve()
-	])
+
 
 	@Subroutine(TealType.none)
 	def reset(account: Expr):
@@ -22,9 +23,8 @@ def approval_program():
 			App.localPut(account, local_opponent, Bytes("")),
 			App.localPut(account, local_wager, Int(0)),
 			App.localPut(account, local_commitment, Bytes("")),
-			App.localPut(account, local_reveal, Bytes("")),
-			Approve()
-	)
+			App.localPut(account, local_reveal, Bytes(""))
+		)
 
 	@Subroutine(TealType.none)
 	def create_challenge():
@@ -38,23 +38,33 @@ def approval_program():
 	def reveal():
 		return Reject()
 
+
+	init = Seq([
+		Approve()
+	])
+
+	opt_in=Seq([
+		reset(Int(0)),
+		Approve()
+	])
+
 	no_op=Seq(
 		Cond(
 			[Txn.application_args[0] == op_challenge, create_challenge()],
 			[Txn.application_args[0] == op_accept, accept_challenge()],
-			[Txn.application_args[0] == op_reveal, reveal()],
+			[Txn.application_args[0] == op_reveal, reveal()]
 		),
-		Reject(),
-  ),
+		Reject()
+    )
 
 	program = Cond(
 		[Txn.application_id() == Int(0), init],
 		# [Txn.on_completion() == OnComplete.DeleteApplication, delete],
 		# [Txn.on_completion() == OnComplete.UpdateApplication, update],
-		[Txn.on_completion() == OnComplete.OptIn, reset(Int(0))],
+		[Txn.on_completion() == OnComplete.OptIn, opt_in],
 		# [Txn.on_completion() == OnComplete.CloseOut, close_out],
-		[Txn.on_completion() == OnComplete.NoOp, no_op],
-  )
+		[Txn.on_completion() == OnComplete.NoOp, no_op]
+	)
 	return program
 
 
@@ -65,13 +75,13 @@ def clear_state_program():
 
 if __name__ == "__main__":
 	compiled_approval = compileTeal(approval_program(), Mode.Application, version=6)
-	compiled_clear = compileTeal(approval_program(), Mode.Application, version=6)
+	compiled_clear = compileTeal(clear_state_program(), Mode.Application, version=6)
 
-	with open("../build/approval.teal", "w") as teal:
-		teal.write(compiled_approval)
-		teal.close()
+with open("../build/approval.teal", "w") as teal:
+	teal.write(compiled_approval)
+	teal.close()
 
-	with open("../build/clear.teal", "w") as teal:
-		teal.write(compiled_clear)
-		teal.close()
+with open("../build/clear.teal", "w") as teal:
+	teal.write(compiled_clear)
+	teal.close()
 
