@@ -1,0 +1,59 @@
+
+export ONE=ENV3PZOJSIVCJK4ZAJPZYRW7C62BAAISC7PDPZ74TWUAJBUIVCDC5BEDUM
+goal asset create --creator $ONE --name "Algohub Tutorial 1 Lab Coin" --total 1000000000 --unitname AHT --decimals 6
+
+export AHT=2
+
+goal asset send --assetid $AHT -f $ONE -t $ONE --amount 0
+goal account info -a $TWO
+
+goal app create --creator $ONE --approval-prog /data/Lab1/approval.teal --clear-prog /data/Lab1/clear.teal --global-byteslices 0 --global-ints 1 --local-byteslices 0 --local-ints 0
+
+goal app create --creator $ONE --approval-prog /data/sample_approval.teal --clear-prog /data/sample_clear.teal --global-byteslices 0 --global-ints 1 --local-byteslices 0 --local-ints 0
+
+export APP=4
+goal app info --app-id $APP
+
+goal app read --global --guess-format --app-id $APP
+goal app call --app-id $APP -f $ONE --app-arg 'string:Add'
+
+goal app call --app-id $APP -f $ONE --app-arg 'string:Deduct' --dryrun-dump -o dryrun.msog
+goal app call --app-id $APP -f $ONE --app-arg 'string:Deduct' --dryrun-dump -o dryrun.dr
+
+tealdbg debug -d dryrun.msog --listen 0.0.0.0
+
+Then open your browser 
+chrome://inspect/#devices
+Go to debugger or console
+
+
+
+TESTNET
+pera wallet seed phrase
+
+response fiscal sail snap device body vibrant force fade gown can dutch cram glass fortune matter reopen permit stairs prefer manage imitate nurse able zebra
+
+goal account list
+export ONE=HLDUXEOR44N3AHPEACVEKWOLXWEUORLDMR2HUTYXKL6EWSFI5P54NRF7IU
+goal app create --creator $ONE --approval-prog /data/sample_approval.teal --clear-prog /data/sample_clear.teal --global-byteslices 0 --global-ints 1 --local-byteslices 0 --local-ints 0
+
+git clone https://github.com/Algo-Hub-io/counter-app.git
+app-id=122329785
+
+global_count.png
+modifiedGlobalGet.png
+
+--global-ints 1: the number of global states in the smart contract that is/are integers is 1
+--global-byteslices 0: the number of global states in the smart contract that is/are byteslices/string is 0
+--local-ints 0: the number of local states in the smart contract that is/are integers is 0
+--local-byteslices 0: the number of local states in the smart contract that is/are byteslices/string is 0.
+Global state consists of key-value pairs that are stored in the application’s global context.
+
+Local state consists of key-value pairs that are stored in a unique context for each account that has opted into your application
+
+
+goal app create --creator $ONE --approval-prog /data/Lab3/approval.teal --clear-prog /data/Lab3/clear.teal --global-ints 1 --global-byteslices 0  --local-ints 0 --local-byteslices 0
+
+app-id=122343356
+
+output.png
