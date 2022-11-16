@@ -1,4 +1,3 @@
-
 from pyteal import *
 
 def approval_program():
@@ -24,18 +23,31 @@ def approval_program():
 			App.localPut(account, local_wager, Int(0)),
 			App.localPut(account, local_commitment, Bytes("")),
 			App.localPut(account, local_reveal, Bytes("")),
+			Approve()
 	)
+
+	@Subroutine(TealType.none)
+	def create_challenge():
+		return Reject()
+
+	@Subroutine(TealType.none)
+	def accept_challenge():
+		return Reject()
+
+	@Subroutine(TealType.none)
+	def reveal():
+		return Reject()
 
 	no_op=Seq(
 		Cond(
-			[Txn.application_args[0] == op_challenge, create_challenge(),],
-			[Txn.application_args[0] == op_accept, accept_challenge(),],
-			[Txn.application_args[0] == op_reveal, reveal(),],
+			[Txn.application_args[0] == op_challenge, create_challenge()],
+			[Txn.application_args[0] == op_accept, accept_challenge()],
+			[Txn.application_args[0] == op_reveal, reveal()],
 		),
 		Reject(),
   ),
 
-	return Cond(
+	program = Cond(
 		[Txn.application_id() == Int(0), init],
 		# [Txn.on_completion() == OnComplete.DeleteApplication, delete],
 		# [Txn.on_completion() == OnComplete.UpdateApplication, update],
@@ -43,10 +55,23 @@ def approval_program():
 		# [Txn.on_completion() == OnComplete.CloseOut, close_out],
 		[Txn.on_completion() == OnComplete.NoOp, no_op],
   )
+	return program
 
 
+def clear_state_program():
+    program = Return(Int(1))
+    return program
 
-def clear():
-    return Approve()
 
+if __name__ == "__main__":
+	compiled_approval = compileTeal(approval_program(), Mode.Application, version=6)
+	compiled_clear = compileTeal(approval_program(), Mode.Application, version=6)
+
+	with open("../build/approval.teal", "w") as teal:
+		teal.write(compiled_approval)
+		teal.close()
+
+	with open("../build/clear.teal", "w") as teal:
+		teal.write(compiled_clear)
+		teal.close()
 
