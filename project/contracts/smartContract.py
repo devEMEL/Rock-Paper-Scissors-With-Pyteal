@@ -1,8 +1,5 @@
 from pyteal import *
-from pyteal_helpers import program
-from pyteal.types import TealType
 from pyteal.ast.bytes import Bytes
-from pyteal.ast.expr import Expr
 
 def approval_program():
 
@@ -40,14 +37,19 @@ def approval_program():
 	@Subroutine(TealType.none)
 	def create_challenge():
 		return Seq(
-            # basic sanity checks
-            program.check_self(
-                group_size=Int(2),
-                group_index=Int(0),
-            ),
-            program.check_rekey_zero(2),
+
             Assert(
+				And(
+					*[
+                		Gtxn[i].rekey_to() == Global.zero_address()
+                		for i in range(2)
+            		]
+				),
                 And(
+
+					Global.group_size() == Int(2),
+            		Txn.group_index() == Int(0),
+
                     # second transaction is wager payment
                     Gtxn[1].type_enum() == TxnType.Payment,
                     Gtxn[1].receiver() == Global.current_application_address(),
@@ -83,6 +85,7 @@ def approval_program():
 	init = Seq([
 		Approve()
 	])
+
 
 	opt_in=Seq([
 		reset(Int(0)),

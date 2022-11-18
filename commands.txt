@@ -57,3 +57,8 @@ goal app create --creator $ONE --approval-prog /data/Lab3/approval.teal --clear-
 app-id=122343356
 
 output.png
+
+
+
+
+goal app create --creator $ONE --approval-prog /data/build/approval.teal --clear-prog /data/build/clear.teal --global-byteslices 0 --global-ints 0 --local-byteslices 3 --local-ints 1

@@ -1,0 +1,165 @@
+#pragma version 6
+txn ApplicationID
+int 0
+==
+bnz main_l13
+txn OnCompletion
+int OptIn
+==
+bnz main_l12
+txn OnCompletion
+int NoOp
+==
+bnz main_l4
+err
+main_l4:
+txna ApplicationArgs 0
+byte "challenge"
+==
+bnz main_l11
+txna ApplicationArgs 0
+byte "accept"
+==
+bnz main_l10
+txna ApplicationArgs 0
+byte "reveal"
+==
+bnz main_l8
+err
+main_l8:
+callsub reveal_4
+main_l9:
+int 0
+return
+main_l10:
+callsub acceptchallenge_3
+b main_l9
+main_l11:
+callsub createchallenge_2
+b main_l9
+main_l12:
+int 0
+callsub reset_0
+int 1
+return
+main_l13:
+int 1
+return
+
+// reset
+reset_0:
+store 0
+load 0
+byte "opponent"
+byte ""
+app_local_put
+load 0
+byte "wager"
+int 0
+app_local_put
+load 0
+byte "commitment"
+byte ""
+app_local_put
+load 0
+byte "reveal"
+byte ""
+app_local_put
+retsub
+
+// is_empty
+isempty_1:
+store 1
+load 1
+byte "opponent"
+app_local_get
+byte ""
+==
+load 1
+byte "wager"
+app_local_get
+int 0
+==
+&&
+load 1
+byte "commitment"
+app_local_get
+byte ""
+==
+&&
+load 1
+byte "reveal"
+app_local_get
+byte ""
+==
+&&
+retsub
+
+// create_challenge
+createchallenge_2:
+gtxn 0 RekeyTo
+global ZeroAddress
+==
+gtxn 1 RekeyTo
+global ZeroAddress
+==
+&&
+assert
+global GroupSize
+int 2
+==
+txn GroupIndex
+int 0
+==
+&&
+gtxn 1 TypeEnum
+int pay
+==
+&&
+gtxn 1 Receiver
+global CurrentApplicationAddress
+==
+&&
+gtxn 1 CloseRemainderTo
+global ZeroAddress
+==
+&&
+int 1
+int 0
+app_opted_in
+&&
+int 0
+callsub isempty_1
+&&
+int 1
+callsub isempty_1
+&&
+txn NumAppArgs
+int 2
+==
+&&
+assert
+txn Sender
+byte "opponent"
+txna Accounts 1
+app_local_put
+txn Sender
+byte "wager"
+gtxn 1 Amount
+app_local_put
+txn Sender
+byte "commitment"
+txna ApplicationArgs 1
+app_local_put
+int 1
+return
+
+// accept_challenge
+acceptchallenge_3:
+int 0
+return
+
+// reveal
+reveal_4:
+int 0
+return

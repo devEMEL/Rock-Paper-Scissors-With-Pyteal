@@ -1,0 +1,23 @@
+{
+  "name": "rock-paper-scissors-with-pyteal",
+  "version": "1.0.0",
+  "description": "This repo shows Rock, Paper, Scissors implementation with pyteal",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devEMEL/Rock-Paper-Scissors-With-Pyteal.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devEMEL/Rock-Paper-Scissors-With-Pyteal/issues"
+  },
+  "homepage": "https://github.com/devEMEL/Rock-Paper-Scissors-With-Pyteal#readme",
+  "devDependencies": {
+    "raw-loader": "^4.0.2"
+  }
+}
