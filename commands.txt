@@ -15,6 +15,7 @@ export APP=4
 goal app info --app-id $APP
 
 goal app read --global --guess-format --app-id $APP
+goal app read --local --guess-format --app-id $APP_ID -f $ONE
 goal app call --app-id $APP -f $ONE --app-arg 'string:Add'
 
 goal app call --app-id $APP -f $ONE --app-arg 'string:Deduct' --dryrun-dump -o dryrun.msog
@@ -32,6 +33,10 @@ TESTNET
 pera wallet seed phrase
 
 response fiscal sail snap device body vibrant force fade gown can dutch cram glass fortune matter reopen permit stairs prefer manage imitate nurse able zebra
+
+another wallet
+gap nothing mixed rent ancient lady fit soul dwarf federal cart crash owner daring engine buddy universe find feature indicate glue raw help able benefit
+R4TAUMFDWOMY23ZACKQ5UPZWN73HFZOPZEQNWOWEOQQVBYVJLM7TVB4B2M
 
 goal account list
 export ONE=HLDUXEOR44N3AHPEACVEKWOLXWEUORLDMR2HUTYXKL6EWSFI5P54NRF7IU
@@ -60,5 +65,24 @@ output.png
 
 
 
+export APP_ID=123950055
+export ONE=HLDUXEOR44N3AHPEACVEKWOLXWEUORLDMR2HUTYXKL6EWSFI5P54NRF7IU
+export TWO=R4TAUMFDWOMY23ZACKQ5UPZWN73HFZOPZEQNWOWEOQQVBYVJLM7TVB4B2M
 
 goal app create --creator $ONE --approval-prog /data/build/approval.teal --clear-prog /data/build/clear.teal --global-byteslices 0 --global-ints 0 --local-byteslices 3 --local-ints 1
+
+r=RUNJ5CLwUpcZHq0T4h09tSDlq+9SBV5JZLgvshP1k6E=
+p=FI3pxaekTRnlbNmuGlVL9nhHr7DFj24S+imsfd/KmUA=
+s=BDpxh3TFcr2KJa2+sb/NXAJWrhHOz5+cP5JdDlK+r4k=
+
+export APP_ID=123967075
+goal app optin --app-id $APP_ID -f $ONE
+goal app read --local --guess-format --app-id $APP_ID -f $ONE
+
+R4TAUMFDWOMY23ZACKQ5UPZWN73HFZOPZEQNWOWEOQQVBYVJLM7TVB4B2M
+
+chmod +x /data/utils/challenge.sh
+
+goal app info --app-id 123781217
+
+ALWAYS CHECK APPLICATION ACCOUNT ON GOAL CLERK SEND

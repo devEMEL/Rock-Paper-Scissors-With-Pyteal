@@ -27,15 +27,15 @@ byte "reveal"
 bnz main_l8
 err
 main_l8:
-callsub reveal_4
+callsub reveal_5
 main_l9:
 int 0
 return
 main_l10:
-callsub acceptchallenge_3
+callsub acceptchallenge_4
 b main_l9
 main_l11:
-callsub createchallenge_2
+callsub createchallenge_3
 b main_l9
 main_l12:
 int 0
@@ -95,8 +95,27 @@ byte ""
 &&
 retsub
 
+// is_valid_play
+isvalidplay_2:
+store 2
+load 2
+extract 0 1
+store 3
+load 3
+byte "r"
+==
+load 3
+byte "p"
+==
+||
+load 3
+byte "s"
+==
+||
+retsub
+
 // create_challenge
-createchallenge_2:
+createchallenge_3:
 gtxn 0 RekeyTo
 global ZeroAddress
 ==
@@ -155,11 +174,74 @@ int 1
 return
 
 // accept_challenge
-acceptchallenge_3:
+acceptchallenge_4:
+gtxn 0 RekeyTo
+global ZeroAddress
+==
+gtxn 1 RekeyTo
+global ZeroAddress
+==
+&&
+assert
+global GroupSize
+int 2
+==
+txn GroupIndex
 int 0
+==
+&&
+gtxn 1 TypeEnum
+int pay
+==
+&&
+gtxn 1 Receiver
+global CurrentApplicationAddress
+==
+&&
+gtxn 1 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 1 Amount
+txna Accounts 1
+byte "wager"
+app_local_get
+==
+&&
+int 1
+int 0
+app_opted_in
+&&
+txna Accounts 1
+byte "opponent"
+app_local_get
+txn Sender
+==
+&&
+txn NumAppArgs
+int 2
+==
+&&
+txna ApplicationArgs 1
+callsub isvalidplay_2
+&&
+assert
+txn Sender
+byte "opponent"
+txna Accounts 1
+app_local_put
+txn Sender
+byte "wager"
+gtxn 1 Amount
+app_local_put
+txn Sender
+byte "reveal"
+txna ApplicationArgs 1
+app_local_put
+int 1
 return
 
 // reveal
-reveal_4:
+reveal_5:
 int 0
 return
