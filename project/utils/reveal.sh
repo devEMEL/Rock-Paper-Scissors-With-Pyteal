@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APP_ID=123967075
+APP_ID=124098211
 ONE=HLDUXEOR44N3AHPEACVEKWOLXWEUORLDMR2HUTYXKL6EWSFI5P54NRF7IU
 TWO=R4TAUMFDWOMY23ZACKQ5UPZWN73HFZOPZEQNWOWEOQQVBYVJLM7TVB4B2M
 WAGER=123456
@@ -9,7 +9,9 @@ CHALLENGER_REVEAL="s-143298479749479749"
 # create accept transaction
 goal app call \
     --app-id "$APP_ID" \
-    -f "$CHALLENGER_ACCOUNT" \
-    --app-account "$OPPONENT_ACCOUNT" \
+    -f "$ONE" \
+    --app-account "$TWO" \
     --app-arg "str:reveal" \
-    --app-arg "str:$CHALLENGER_REVEAL"
+    --app-arg "str:$CHALLENGER_REVEAL" \
+    --fee 3000
+    

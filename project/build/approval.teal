@@ -27,7 +27,7 @@ byte "reveal"
 bnz main_l8
 err
 main_l8:
-callsub reveal_5
+callsub reveal_8
 main_l9:
 int 0
 return
@@ -241,7 +241,184 @@ app_local_put
 int 1
 return
 
-// reveal
-reveal_5:
+// play_value
+playvalue_5:
+store 6
+load 6
+extract 0 1
+store 7
+load 7
+byte "r"
+==
+bnz playvalue_5_l6
+load 7
+byte "p"
+==
+bnz playvalue_5_l5
+load 7
+byte "s"
+==
+bnz playvalue_5_l4
+err
+playvalue_5_l4:
+int 2
+b playvalue_5_l7
+playvalue_5_l5:
+int 1
+b playvalue_5_l7
+playvalue_5_l6:
 int 0
+playvalue_5_l7:
+retsub
+
+// winner_account_index
+winneraccountindex_6:
+store 9
+store 8
+load 8
+load 9
+==
+bnz winneraccountindex_6_l6
+load 8
+int 1
++
+int 3
+%
+load 9
+==
+bnz winneraccountindex_6_l5
+load 9
+int 1
++
+int 3
+%
+load 8
+==
+bnz winneraccountindex_6_l4
+err
+winneraccountindex_6_l4:
+int 0
+b winneraccountindex_6_l7
+winneraccountindex_6_l5:
+int 1
+b winneraccountindex_6_l7
+winneraccountindex_6_l6:
+int 2
+winneraccountindex_6_l7:
+retsub
+
+// send_reward
+sendreward_7:
+store 11
+store 10
+itxn_begin
+int pay
+itxn_field TypeEnum
+load 10
+txnas Accounts
+itxn_field Receiver
+load 11
+itxn_field Amount
+int 0
+itxn_field Fee
+itxn_submit
+retsub
+
+// reveal
+reveal_8:
+gtxn 0 RekeyTo
+global ZeroAddress
+==
+assert
+global GroupSize
+int 1
+==
+txn GroupIndex
+int 0
+==
+&&
+int 0
+byte "opponent"
+app_local_get
+txna Accounts 1
+==
+&&
+int 1
+byte "opponent"
+app_local_get
+txn Sender
+==
+&&
+int 0
+byte "wager"
+app_local_get
+int 1
+byte "wager"
+app_local_get
+==
+&&
+int 0
+byte "commitment"
+app_local_get
+byte ""
+!=
+&&
+int 1
+byte "reveal"
+app_local_get
+byte ""
+!=
+&&
+txn NumAppArgs
+int 2
+==
+&&
+assert
+int 0
+byte "wager"
+app_local_get
+store 5
+txna ApplicationArgs 1
+callsub playvalue_5
+int 1
+byte "reveal"
+app_local_get
+callsub playvalue_5
+callsub winneraccountindex_6
+store 4
+load 4
+int 2
+==
+bnz reveal_8_l2
+txn Fee
+global MinTxnFee
+int 2
+*
+>=
+assert
+load 4
+load 5
+int 2
+*
+callsub sendreward_7
+b reveal_8_l3
+reveal_8_l2:
+txn Fee
+global MinTxnFee
+int 3
+*
+>=
+assert
+int 0
+load 5
+callsub sendreward_7
+int 1
+load 5
+callsub sendreward_7
+reveal_8_l3:
+int 0
+callsub reset_0
+int 1
+callsub reset_0
+int 1
 return

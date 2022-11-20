@@ -132,10 +132,116 @@ def approval_program():
 
 		)
 
+	@Subroutine(TealType.uint64)
+	def play_value(p: Expr):
+		first_letter = ScratchVar()
+		return Seq(
+            first_letter.store(Substring(p, Int(0), Int(1))),
+            Return(
+                Cond(
+                    [first_letter.load() == Bytes("r"), Int(0)],
+                    [first_letter.load() == Bytes("p"), Int(1)],
+                    [first_letter.load() == Bytes("s"), Int(2)],
+                )
+            ),
+        )
+
+	@Subroutine(TealType.uint64)
+	def winner_account_index(play: Expr, opponent_play: Expr):
+		return Return(
+            Cond(
+                [play == opponent_play, Int(2)],  # tie
+                [(play + Int(1)) % Int(3) == opponent_play, Int(1)],  # opponent wins
+                [
+                    (opponent_play + Int(1)) % Int(3) == play,
+                    Int(0),
+                ],  # current account win
+            )
+        )
+
+
+	@Subroutine(TealType.none)
+	def send_reward(account_index: Expr, amount: Expr):
+		return Seq(
+            InnerTxnBuilder.Begin(),
+            InnerTxnBuilder.SetFields(
+                {
+                    TxnField.type_enum: TxnType.Payment,
+                    TxnField.receiver: Txn.accounts[account_index],
+                    TxnField.amount: amount,
+                    TxnField.fee: Int(0),  # use fee pooling
+                }
+            ),
+            InnerTxnBuilder.Submit(),
+        )
+
+
 	@Subroutine(TealType.none)
 	def reveal():
-		return Reject()
+		winner = ScratchVar()
+		wager = ScratchVar()
+		return Seq(
+            Assert(
+				And(
+					*[
+                		Gtxn[i].rekey_to() == Global.zero_address()
+                		for i in range(1)
+            		]
+				),
+				And(
 
+					Global.group_size() == Int(1),
+            		Txn.group_index() == Int(0),
+
+                    # verify game data matches
+                    App.localGet(Int(0), local_opponent) == Txn.accounts[1],
+                    App.localGet(Int(1), local_opponent) == Txn.sender(),
+                    App.localGet(Int(0), local_wager)
+                    == App.localGet(Int(1), local_wager),
+                    # this account has commitment
+                    App.localGet(Int(0), local_commitment) != Bytes(""),
+                    # opponent account has a reveal
+                    App.localGet(Int(1), local_reveal) != Bytes(""),
+                    # require reveal argument
+                    Txn.application_args.length() == Int(2),
+                    # validate reveal
+                    # Sha256(Txn.application_args[1])
+                    # == App.localGet(Int(0), local_commitment),
+                )
+            ),
+            wager.store(App.localGet(Int(0), local_wager)),
+            winner.store(
+                winner_account_index(
+                    play_value(Txn.application_args[1]),
+                    play_value(App.localGet(Int(1), local_reveal)),
+                )
+            ),
+            If(winner.load() == Int(2))
+            .Then(
+                # tie: refund wager to each party
+                Seq(
+                    # require first transaction fee to cover:
+                    # - own transaction fee
+                    # - each reward transaction fee
+                    Assert(Txn.fee() >= Global.min_txn_fee() * Int(3)),
+                    send_reward(Int(0), wager.load()),
+                    send_reward(Int(1), wager.load()),
+                )
+            )
+            .Else(
+                # send double wager to winner
+                Seq(
+                    # require first transaction fee to cover:
+                    # - own transaction fee
+                    # - reward transaction fee
+                    Assert(Txn.fee() >= Global.min_txn_fee() * Int(2)),
+                    send_reward(winner.load(), wager.load() * Int(2)),
+                )
+            ),
+            reset(Int(0)),
+            reset(Int(1)),
+            Approve(),
+        )
 
 	init = Seq([
 		Approve()

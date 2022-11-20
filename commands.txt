@@ -75,7 +75,7 @@ r=RUNJ5CLwUpcZHq0T4h09tSDlq+9SBV5JZLgvshP1k6E=
 p=FI3pxaekTRnlbNmuGlVL9nhHr7DFj24S+imsfd/KmUA=
 s=BDpxh3TFcr2KJa2+sb/NXAJWrhHOz5+cP5JdDlK+r4k=
 
-export APP_ID=123967075
+export APP_ID=124098211
 goal app optin --app-id $APP_ID -f $ONE
 goal app read --local --guess-format --app-id $APP_ID -f $ONE
 
@@ -86,3 +86,12 @@ chmod +x /data/utils/challenge.sh
 goal app info --app-id 123781217
 
 ALWAYS CHECK APPLICATION ACCOUNT ON GOAL CLERK SEND
+
+for create challenge
+"b64:BDpxh3TFcr2KJa2+sb/NXAJWrhHOz5+cP5JdDlK+r4k="
+
+for accept challenge 
+"str:r"
+
+for reveal challenge  
+"str:s-143298479749479749"
