@@ -34,6 +34,21 @@ def approval_program():
             )
         )
 
+	@Subroutine(TealType.uint64)
+	def is_valid_play(play: Expr):
+		first_character = ScratchVar(TealType.bytes)
+		return Seq(
+		first_character.store(Substring(play, Int(0), Int(1))),
+		Return(
+			Or(
+				first_character.load() == Bytes("r"),
+				first_character.load() == Bytes("p"),
+				first_character.load() == Bytes("s")
+			)
+		)
+	)
+
+
 	@Subroutine(TealType.none)
 	def create_challenge():
 		return Seq(
@@ -75,7 +90,47 @@ def approval_program():
 
 	@Subroutine(TealType.none)
 	def accept_challenge():
-		return Reject()
+		return Seq(
+
+            Assert(
+				And(
+					*[
+                		Gtxn[i].rekey_to() == Global.zero_address()
+                		for i in range(2)
+            		]
+				),
+				And(
+
+					Global.group_size() == Int(2),
+            		Txn.group_index() == Int(0),
+
+                    # second transaction is wager payment
+                    Gtxn[1].type_enum() == TxnType.Payment,
+                    Gtxn[1].receiver() == Global.current_application_address(),
+                    Gtxn[1].close_remainder_to() == Global.zero_address(),
+
+					# One of the ways to check if there is a challenge and be sure of the amount.
+					Gtxn[1].amount() == App.localGet(Txn.accounts[1], local_wager),
+
+                    # second account has opted-in
+                    App.optedIn(Int(1), Int(0)),
+					App.localGet(Txn.accounts[1], local_opponent) == Txn.sender(),
+
+                    # reveal
+                    Txn.application_args.length() == Int(2),
+					is_valid_play(Txn.application_args[1]),
+                ),
+			),
+			App.localPut(Txn.sender(), local_opponent, Txn.accounts[1]),
+            App.localPut(Txn.sender(), local_wager, Gtxn[1].amount()),
+            App.localPut(
+                Txn.sender(),
+                local_reveal,
+                Txn.application_args[1],
+            ),
+            Approve(),
+
+		)
 
 	@Subroutine(TealType.none)
 	def reveal():
